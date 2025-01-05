@@ -46,10 +46,16 @@ func (pc *PostController) GetPosts(c *gin.Context) {
 	var posts []models.Post
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
+	category := c.Query("category")
 
 	offset := (page - 1) * pageSize
+	query := pc.db.Preload("User")
 
-	if err := pc.db.Preload("User").Offset(offset).Limit(pageSize).Find(&posts).Error; err != nil {
+	if category != "" {
+		query = query.Where("category = ?", category)
+	}
+
+	if err := query.Offset(offset).Limit(pageSize).Find(&posts).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -114,4 +120,40 @@ func (pc *PostController) DeletePost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
+}
+
+// IncrementViews 增加文章阅读量
+func (pc *PostController) IncrementViews(c *gin.Context) {
+	id := c.Param("id")
+	var post models.Post
+
+	if err := pc.db.First(&post, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+		return
+	}
+
+	if err := pc.db.Model(&post).Update("views", gorm.Expr("views + ?", 1)).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Views updated successfully"})
+}
+
+// GetPostsByCategory 获取指定分类的文章
+func (pc *PostController) GetPostsByCategory(c *gin.Context) {
+	category := c.Query("category")
+	var posts []models.Post
+
+	query := pc.db.Preload("User")
+	if category != "" {
+		query = query.Where("category = ?", category)
+	}
+
+	if err := query.Find(&posts).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, posts)
 } 

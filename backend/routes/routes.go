@@ -24,11 +24,12 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		// 文章相关路由
 		posts := v1.Group("/posts")
 		{
-			posts.POST("/", postController.CreatePost)
-			posts.GET("/", postController.GetPosts)
+			posts.POST("", postController.CreatePost)
+			posts.GET("", postController.GetPosts)
 			posts.GET("/:id", postController.GetPost)
 			posts.PUT("/:id", postController.UpdatePost)
 			posts.DELETE("/:id", postController.DeletePost)
+			posts.POST("/:id/views", postController.IncrementViews)
 		}
 	}
 }

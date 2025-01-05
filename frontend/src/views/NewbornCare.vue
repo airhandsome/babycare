@@ -7,20 +7,20 @@
       <h2 class="text-2xl font-bold mb-6">喂养指导</h2>
       <div class="grid md:grid-cols-2 gap-8">
         <div class="bg-white rounded-xl shadow-md p-6">
-          <img src="https://images.unsplash.com/photo-1590612847213-5c54a3c3f103" 
+          <img src="/images/newborn/breastfeeding.png" 
                alt="母乳喂养" 
                class="w-full h-48 object-cover rounded-lg mb-4">
           <h3 class="text-xl font-bold mb-2">母乳喂养指南</h3>
           <p class="text-gray-600">了解正确的母乳喂养姿势和技巧，确保宝宝获得充足营养。</p>
-          <el-button type="primary" class="mt-4">查看详情</el-button>
+          <el-button type="primary" class="mt-4" @click="handleFeedingClick('breastfeeding')">查看详情</el-button>
         </div>
         <div class="bg-white rounded-xl shadow-md p-6">
-          <img src="https://images.unsplash.com/photo-1594612076467-d532b39c6559" 
+          <img src="/images/newborn/formula.png" 
                alt="人工喂养" 
                class="w-full h-48 object-cover rounded-lg mb-4">
           <h3 class="text-xl font-bold mb-2">人工喂养建议</h3>
           <p class="text-gray-600">选择合适的奶粉和喂养工具，掌握科学的喂养方法。</p>
-          <el-button type="primary" class="mt-4">查看详情</el-button>
+          <el-button type="primary" class="mt-4" @click="handleFeedingClick('formula')">查看详情</el-button>
         </div>
       </div>
     </section>
@@ -34,7 +34,8 @@
                  :title="item.title"
                  :description="item.description"
                  :icon="item.icon"
-                 :image="item.image" />
+                 :image="item.image"
+                 @click="handleCardClick(item.id)" />
       </div>
     </section>
 
@@ -45,7 +46,8 @@
         <div class="grid md:grid-cols-2 gap-8">
           <div v-for="item in developmentItems" 
                :key="item.id"
-               class="flex items-start space-x-4">
+               class="flex items-start space-x-4 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors"
+               @click="handleDevelopmentClick(item.id)">
             <el-icon class="text-3xl text-blue-600 mt-1">
               <component :is="item.icon" />
             </el-icon>
@@ -61,9 +63,32 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Bell, Monitor, Star, View, Calendar, Loading } from '@element-plus/icons-vue'
 import CareCard from '../components/cards/CareCard.vue'
+import request from '../utils/request'
+import { ElMessage } from 'element-plus'
+
+const router = useRouter()
+const articles = ref([])
+
+// 获取新生儿护理文章
+const loadNewbornArticles = async () => {
+  try {
+    const response = await request.get('posts', {
+      params: { category: 'newborn' }
+    })
+    articles.value = response
+  } catch (error) {
+    ElMessage.error('加载文章失败')
+    console.error('Failed to load newborn articles:', error)
+  }
+}
+
+onMounted(() => {
+  loadNewbornArticles()
+})
 
 const careItems = ref([
   {
@@ -71,21 +96,21 @@ const careItems = ref([
     title: '脐带护理',
     description: '正确的脐带护理方法和注意事项',
     icon: Bell,
-    image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9'
+    image: '/images/newborn/umbilical.png'
   },
   {
     id: 2,
     title: '洗澡技巧',
     description: '新生儿洗澡的步骤和安全事项',
     icon: Monitor,
-    image: 'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a'
+    image: '/images/newborn/bath.png'
   },
   {
     id: 3,
     title: '换尿布指南',
     description: '如何正确更换尿布并预防红臀',
     icon: Star,
-    image: 'https://images.unsplash.com/photo-1596178065887-1198b6148b2b'
+    image: '/images/newborn/diaper.png'
   }
 ])
 
@@ -115,4 +140,53 @@ const developmentItems = ref([
     icon: Calendar
   }
 ])
+
+const handleCardClick = (id) => {
+  const article = articles.value.find(a => {
+    switch(id) {
+      case 1: return a.title.includes('脐带护理')
+      case 2: return a.title.includes('洗澡')
+      case 3: return a.title.includes('换尿布')
+      default: return false
+    }
+  })
+  if (article) {
+    router.push(`/article/${article.id}`)
+  } else {
+    ElMessage.error('未找到相关文章')
+    console.error('Article not found for id:', id)
+  }
+}
+
+const handleFeedingClick = (type) => {
+  const article = articles.value.find(a => 
+    type === 'breastfeeding' ? 
+      a.title.includes('母乳喂养') : 
+      a.title.includes('人工喂养')
+  )
+  if (article) {
+    router.push(`/article/${article.id}`)
+  } else {
+    ElMessage.error('未找到相关文章')
+    console.error('Article not found for type:', type)
+  }
+}
+
+const handleDevelopmentClick = (id) => {
+  const article = articles.value.find(a => {
+    switch(id) {
+      case 1: return a.title.includes('视觉发展')
+      case 2: return a.title.includes('听觉训练')
+      case 3: return a.title.includes('运动技能')
+      case 4: return a.title.includes('作息')
+      default: return false
+    }
+  })
+  if (article) {
+    router.push(`/article/${article.id}`)
+  } else {
+    ElMessage.error('未找到相关文章')
+    console.error('Article not found for id:', id)
+  }
+}
 </script>

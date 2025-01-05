@@ -2,130 +2,265 @@
   <div class="max-w-7xl mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-8">孕期护理</h1>
     
-    <!-- 营养与健康 -->
+    <!-- 营养指导 -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-6">营养与健康</h2>
+      <h2 class="text-2xl font-bold mb-6">营养指导</h2>
       <div class="grid md:grid-cols-2 gap-8">
         <div class="bg-white rounded-xl shadow-md p-6">
-          <img src="https://images.unsplash.com/photo-1493770348161-369560ae357d" 
+          <img src="/images/pregnancy/nutrition-guide.png" 
                alt="孕期营养" 
                class="w-full h-48 object-cover rounded-lg mb-4">
-          <h3 class="text-xl font-bold mb-2">孕期营养指南</h3>
-          <p class="text-gray-600">了解孕期各阶段的营养需求，为宝宝的健康发展打下基础。</p>
+          <h3 class="text-xl font-bold mb-2">孕期营养食谱</h3>
+          <p class="text-gray-600">为准妈妈提供全面的营养搭配建议，确保母婴健康。</p>
+          <el-button type="primary" class="mt-4" @click="navigateToArticle('nutrition')">查看详情</el-button>
         </div>
         <div class="bg-white rounded-xl shadow-md p-6">
-          <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a" 
-               alt="孕期运动" 
+          <img src="/images/pregnancy/supplements.png" 
+               alt="营养补充" 
                class="w-full h-48 object-cover rounded-lg mb-4">
-          <h3 class="text-xl font-bold mb-2">安全运动建议</h3>
-          <p class="text-gray-600">合适的运动可以帮助缓解不适，保持身体健康。</p>
+          <h3 class="text-xl font-bold mb-2">营养补充指南</h3>
+          <p class="text-gray-600">了解孕期必需的营养补充剂，科学补充营养。</p>
+          <el-button type="primary" class="mt-4" @click="navigateToArticle('supplements')">查看详情</el-button>
         </div>
       </div>
     </section>
 
-    <!-- 产前准备 -->
+    <!-- 运动建议 -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-6">产前准备</h2>
+      <h2 class="text-2xl font-bold mb-6">运动建议</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <CareCard v-for="item in exerciseItems" 
+                 :key="item.id"
+                 :title="item.title"
+                 :description="item.description"
+                 :icon="item.icon"
+                 :image="item.image"
+                 @click="navigateToArticle(item.id)" />
+      </div>
+    </section>
+
+    <!-- 健康监测 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">健康监测</h2>
       <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="grid md:grid-cols-3 gap-6">
-          <div v-for="item in preparationItems" :key="item.id" class="text-center">
-            <el-icon class="text-4xl text-blue-600 mb-4">
+        <div class="grid md:grid-cols-2 gap-8">
+          <div v-for="item in healthItems" 
+               :key="item.id"
+               class="flex items-start space-x-4">
+            <el-icon class="text-3xl text-blue-600 mt-1">
               <component :is="item.icon" />
             </el-icon>
-            <h3 class="font-bold mb-2">{{ item.title }}</h3>
-            <p class="text-gray-600">{{ item.description }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 互动社区 -->
-    <section>
-      <h2 class="text-2xl font-bold mb-6">互动社区</h2>
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="mb-6">
-          <el-input
-            v-model="newPost"
-            type="textarea"
-            placeholder="分享您的经验和问题..."
-            :rows="3"
-          />
-          <div class="mt-4 text-right">
-            <el-button type="primary">发布</el-button>
-          </div>
-        </div>
-        <div class="space-y-6">
-          <div v-for="post in communityPosts" :key="post.id" class="border-b pb-6">
-            <div class="flex items-start space-x-4">
-              <el-avatar :src="post.avatar" />
-              <div class="flex-1">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="font-bold">{{ post.username }}</span>
-                  <span class="text-gray-500 text-sm">{{ post.time }}</span>
-                </div>
-                <p class="text-gray-700">{{ post.content }}</p>
-                <div class="mt-2 flex items-center space-x-4">
-                  <el-button text>
-                    <el-icon><ChatDotRound /></el-icon>
-                    回复 ({{ post.replies }})
-                  </el-button>
-                  <el-button text>
-                    <el-icon><Star /></el-icon>
-                    收藏
-                  </el-button>
-                </div>
-              </div>
+            <div>
+              <h3 class="text-lg font-bold mb-2">{{ item.title }}</h3>
+              <p class="text-gray-600">{{ item.description }}</p>
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- 文章列表 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">最新文章</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div v-for="post in posts" 
+             :key="post.id" 
+             class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+             @click="goToDetail(post.id)">
+          <div class="relative">
+            <img :src="getArticleImage(post)" alt="文章配图" class="w-full h-48 object-cover">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+              <h2 class="text-white text-xl font-semibold">{{ post.title }}</h2>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-gray-600 line-clamp-3">{{ formatContent(post.content) }}</p>
+            <div class="mt-4 flex items-center justify-between text-sm text-gray-500">
+              <span class="flex items-center">
+                <i class="fas fa-user mr-2"></i>
+                {{ post.user.username }}
+              </span>
+              <span class="flex items-center">
+                <i class="fas fa-calendar mr-2"></i>
+                {{ formatDate(post.created_at) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页控件 -->
+      <div class="flex justify-center mt-8 space-x-2">
+        <button 
+          @click="loadPosts(currentPage - 1)"
+          :disabled="currentPage === 1"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-md disabled:bg-gray-400 hover:bg-indigo-700 transition-colors"
+        >
+          上一页
+        </button>
+        <span class="px-4 py-2 bg-white rounded-md shadow">第 {{ currentPage }} 页</span>
+        <button 
+          @click="loadPosts(currentPage + 1)"
+          :disabled="!hasMorePages"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-md disabled:bg-gray-400 hover:bg-indigo-700 transition-colors"
+        >
+          下一页
+        </button>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ChatDotRound, Star, Location, Timer, Box } from '@element-plus/icons-vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { Bell, Monitor, Star, View, Calendar, Loading } from '@element-plus/icons-vue'
+import CareCard from '../components/cards/CareCard.vue'
+import request from '../utils/request'
 
-const newPost = ref('')
+const router = useRouter()
+const posts = ref([])
+const articles = ref([])
+const currentPage = ref(1)
+const pageSize = ref(6)
+const hasMorePages = ref(true)
 
-const preparationItems = ref([
+const exerciseItems = ref([
+  {
+    id: 'yoga',
+    title: '孕期瑜伽',
+    description: '安全的孕期瑜伽动作和注意事项',
+    icon: Bell,
+    image: '/images/pregnancy/yoga.png'
+  },
+  {
+    id: 'walking',
+    title: '散步指南',
+    description: '合适的散步时间和强度建议',
+    icon: Monitor,
+    image: '/images/pregnancy/walking.png'
+  },
+  {
+    id: 'swimming',
+    title: '游泳建议',
+    description: '孕期游泳的好处和安全事项',
+    icon: Star,
+    image: '/images/pregnancy/swimming.png'
+  }
+])
+
+const healthItems = ref([
   {
     id: 1,
-    title: '医院选择',
-    description: '了解各医院的特点，选择适合的分娩医院',
-    icon: Location
+    title: '体重管理',
+    description: '了解孕期合理的体重增长范围，保持健康的体重管理。',
+    icon: View
   },
   {
     id: 2,
-    title: '待产准备',
-    description: '待产包清单和注意事项',
-    icon: Box
+    title: '产检跟踪',
+    description: '定期产检的重要性和检查项目说明。',
+    icon: Bell
   },
   {
     id: 3,
-    title: '分娩知识',
-    description: '了解分娩过程和注意事项',
-    icon: Timer
+    title: '营养监测',
+    description: '监测营养摄入，确保母婴所需的各类营养素。',
+    icon: Loading
+  },
+  {
+    id: 4,
+    title: '心理调节',
+    description: '保持良好的心理状态，应对孕期情绪变化。',
+    icon: Calendar
   }
 ])
 
-const communityPosts = ref([
-  {
-    id: 1,
-    username: '准妈妈小王',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-    content: '最近总是失眠，有什么好的解决办法吗？',
-    time: '2小时前',
-    replies: 5
-  },
-  {
-    id: 2,
-    username: '快乐妈咪',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-    content: '分享一下我的孕期营养餐谱，希望对大家有帮助！',
-    time: '4小时前',
-    replies: 8
+const defaultImages = [
+  '/images/pregnancy/care.png',
+  '/images/pregnancy/exercise.png',
+  '/images/pregnancy/care.png',
+  '/images/pregnancy/health.png'
+]
+
+const loadPregnancyArticles = async () => {
+  try {
+    const response = await request.get('posts', {
+      params: { category: 'pregnancy' }
+    })
+    articles.value = response
+  } catch (error) {
+    console.error('Failed to load pregnancy articles:', error)
   }
-])
+}
+
+onMounted(() => {
+  loadPosts(1)
+  loadPregnancyArticles()
+})
+
+const loadPosts = async (page) => {
+  try {
+    const response = await request.get('posts', {
+      params: {
+        page: page,
+        page_size: pageSize.value,
+        category: 'pregnancy'
+      }
+    })
+    posts.value = response
+    currentPage.value = page
+    hasMorePages.value = response.length === pageSize.value
+  } catch (error) {
+    console.error('Failed to load posts:', error)
+  }
+}
+
+const formatContent = (content) => {
+  return content.length > 100 ? content.slice(0, 100) + '...' : content
+}
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+const getArticleImage = (post) => {
+  return defaultImages[post.id % defaultImages.length]
+}
+
+const goToDetail = (id) => {
+  router.push(`/article/${id}`)
+}
+
+const navigateToArticle = (id) => {
+  const article = articles.value.find(a => {
+    switch(id) {
+      case 'nutrition': return a.title.includes('营养食谱')
+      case 'supplements': return a.title.includes('营养补充剂')
+      case 'yoga': return a.title.includes('瑜伽')
+      case 'walking': return a.title.includes('散步')
+      case 'swimming': return a.title.includes('游泳')
+      default: return false
+    }
+  })
+  if (article) {
+    router.push(`/article/${article.id}`)
+  } else {
+    ElMessage.error('未找到相关文章')
+    console.error('Article not found for id:', id)
+  }
+}
 </script>
+
+<style scoped>
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

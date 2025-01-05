@@ -1,45 +1,57 @@
 <template>
-  <section class="py-16 bg-gray-50">
+  <div class="py-16">
     <div class="max-w-7xl mx-auto px-4">
-      <h2 class="text-3xl font-bold mb-8 text-center">特色服务</h2>
+      <h2 class="text-3xl font-bold text-center mb-12">特色服务</h2>
+      
       <div class="grid md:grid-cols-3 gap-8">
         <div v-for="service in services" 
              :key="service.id" 
-             class="bg-white p-8 rounded-xl shadow-md text-center transform transition duration-300 hover:shadow-lg">
-          <el-icon class="text-4xl text-blue-600 mb-6">
+             class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow cursor-pointer"
+             @click="navigateToService(service.route)">
+          <el-icon class="text-4xl text-indigo-600 mb-4">
             <component :is="service.icon" />
           </el-icon>
-          <h3 class="text-xl font-bold mb-4">{{ service.title }}</h3>
-          <p class="text-gray-600 mb-4">{{ service.description }}</p>
-          <el-button type="primary" plain>了解更多</el-button>
+          <h3 class="text-xl font-bold mb-2">{{ service.title }}</h3>
+          <p class="text-gray-600">{{ service.description }}</p>
+          <el-button type="primary" plain class="mt-4">了解更多</el-button>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { ChatDotRound, User, Calendar } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import { Sunrise, FirstAidKit, School } from '@element-plus/icons-vue'
+
+const router = useRouter()
 
 const services = ref([
   {
     id: 1,
-    title: '在线咨询',
-    description: '随时与育儿专家在线交流，解答您的疑惑，提供专业建议。',
-    icon: ChatDotRound
+    title: '孕期护理',
+    description: '为准妈妈提供全面的孕期指导和营养建议',
+    icon: Sunrise,
+    route: '/pregnancy-care'
   },
   {
     id: 2,
-    title: '专家问答',
-    description: '资深儿科医生、心理专家为您答疑解惑，提供权威指导。',
-    icon: User
+    title: '新生儿护理',
+    description: '专业的新生儿护理知识和实用技巧',
+    icon: FirstAidKit,
+    route: '/newborn-care'
   },
   {
     id: 3,
-    title: '成长记录',
-    description: '记录宝宝的每个重要时刻，科学追踪成长轨迹。',
-    icon: Calendar
+    title: '早教指导',
+    description: '科学的早期教育方法和互动游戏',
+    icon: School,
+    route: '/preschool-education'
   }
 ])
+
+const navigateToService = (route) => {
+  router.push(route)
+}
 </script>

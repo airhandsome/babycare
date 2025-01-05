@@ -57,10 +57,14 @@ func main() {
 
 	r := gin.New()
 
-	// 使用中间件
+	// 配置gin不自动重定向
+	r.RedirectTrailingSlash = false
+	r.RedirectFixedPath = false
+
+	r.Use(middleware.CORS())
 	r.Use(middleware.Logger())
 	r.Use(middleware.Recovery())
-	r.Use(middleware.CORS())
+	//r.Use(middleware.ClientCheck())
 
 	// 初始化路由
 	routes.SetupRoutes(r, db, rdb)

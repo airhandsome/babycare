@@ -5,11 +5,16 @@ import (
 )
 
 type Post struct {
-	ID        uint      `gorm:"primarykey" json:"id"`
-	Title     string    `gorm:"not null" json:"title"`
-	Content   string    `gorm:"not null" json:"content"`
+	ID        uint      `json:"id" gorm:"primarykey"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
 	UserID    uint      `json:"user_id"`
-	User      User      `gorm:"foreignKey:UserID" json:"user"`
+	User      User      `json:"user"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Views     int       `json:"views" gorm:"default:0"` // 阅读量
+	WordCount int       `json:"word_count"`             // 字数
+	ReadTime  int       `json:"read_time"`              // 预计阅读时间（分钟）
+	Tags      string    `json:"tags"`                   // 文章标签，用逗号分隔
+	Category  string    `json:"category"`
 }

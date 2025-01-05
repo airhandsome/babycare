@@ -1,53 +1,89 @@
 <template>
-  <section class="py-16">
+  <div class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
-      <h2 class="text-3xl font-bold mb-8 text-center">最新文章</h2>
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold">最新文章</h2>
+        <el-button type="primary" @click="router.push('/articles')">查看更多</el-button>
+      </div>
+      
       <div class="grid md:grid-cols-3 gap-8">
         <div v-for="article in articles" 
              :key="article.id" 
-             class="bg-white rounded-xl shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
-          <img :src="article.image" :alt="article.title" class="w-full h-48 object-cover">
+             class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+             @click="goToDetail(article.id)">
+          <img :src="getArticleImage(article)" 
+               :alt="article.title" 
+               class="w-full h-48 object-cover">
           <div class="p-6">
-            <div class="text-sm text-blue-600 mb-2">{{ article.category }}</div>
-            <h3 class="text-xl font-bold mb-2 text-gray-900">{{ article.title }}</h3>
-            <p class="text-gray-600 mb-4">{{ article.excerpt }}</p>
-            <router-link :to="article.link" class="text-blue-600 hover:text-blue-800 font-medium">
-              阅读更多 →
-            </router-link>
+            <h3 class="text-xl font-bold mb-2">{{ article.title }}</h3>
+            <p class="text-gray-600 mb-4 line-clamp-2">{{ article.content }}</p>
+            <div class="flex justify-between items-center text-sm text-gray-500">
+              <span>{{ formatDate(article.created_at) }}</span>
+              <span>阅读量: {{ article.views }}</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import request from '../../utils/request'
 
-const articles = ref([
-  {
-    id: 1,
-    title: '婴儿睡眠指南：建立健康作息',
-    excerpt: '了解如何帮助宝宝建立规律的睡眠习惯，促进健康成长。',
-    category: '新生儿护理',
-    image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9',
-    link: '/article/1'
-  },
-  {
-    id: 2,
-    title: '科学添加辅食的关键时期',
-    excerpt: '详细解读6-12个月婴儿的辅食添加指南，让宝宝健康成长。',
-    category: '婴儿营养',
-    image: 'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a',
-    link: '/article/2'
-  },
-  {
-    id: 3,
-    title: '早教游戏：激发宝宝潜能',
-    excerpt: '精选适合0-3岁婴幼儿的互动游戏，促进感知和认知发展。',
-    category: '早期教育',
-    image: 'https://images.unsplash.com/photo-1596178065887-1198b6148b2b',
-    link: '/article/3'
+const router = useRouter()
+const articles = ref([])
+
+const defaultImages = [
+  '/images/articles/article1.png',
+  '/images/articles/article2.png',
+  '/images/articles/article3.png',
+  '/images/articles/article4.png'
+]
+
+const loadLatestArticles = async () => {
+  try {
+    const response = await request.get('posts', {
+      params: {
+        page: 1,
+        page_size: 6,
+        sort: 'created_at desc'
+      }
+    })
+    articles.value = response
+  } catch (error) {
+    console.error('Failed to load articles:', error)
   }
-])
+}
+
+onMounted(() => {
+  loadLatestArticles()
+})
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+const getArticleImage = (article) => {
+  return defaultImages[article.id % defaultImages.length]
+}
+
+const goToDetail = (id) => {
+  router.push(`/article/${id}`)
+}
 </script>
+
+<style scoped>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
