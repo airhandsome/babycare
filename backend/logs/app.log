@@ -1,0 +1,1 @@
+{"level":"fatal","msg":"Failed to connect to database: failed to connect to `host=localhost user=postgres database=baby_share`: dial error (dial tcp 127.0.0.1:5432: connectex: No connection could be made because the target machine actively refused it.)","time":"2025-01-05 17:55:02"}

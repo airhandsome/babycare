@@ -1,0 +1,24 @@
+server:
+  port: "8080"
+  mode: "release"
+
+database:
+  host: "postgres"  # 使用docker-compose服务名
+  port: "5432"
+  user: "postgres"
+  password: "BabyShare123"
+  dbname: "baby_share"
+
+redis:
+  host: "redis"    # 使用docker-compose服务名
+  port: "6379"
+  password: ""
+  db: 0
+
+log:
+  level: "info"
+  filename: "logs/app.log"
+  maxsize: 100
+  maxage: 30
+  maxbackups: 30
+  compress: true 
