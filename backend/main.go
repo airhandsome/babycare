@@ -46,7 +46,15 @@ func main() {
 	}
 
 	// 自动迁移数据库表
-	db.AutoMigrate(&models.User{}, &models.Post{})
+	if err := db.AutoMigrate(&models.User{}); err != nil {
+		logger.Log.Fatalf("Failed to migrate user table: %v", err)
+	}
+	if err := db.AutoMigrate(&models.Post{}, &models.ForumPost{}); err != nil {
+		logger.Log.Fatalf("Failed to migrate post tables: %v", err)
+	}
+	if err := db.AutoMigrate(&models.Comment{}); err != nil {
+		logger.Log.Fatalf("Failed to migrate comment table: %v", err)
+	}
 
 	// 生成mock数据
 	if env == "default" {

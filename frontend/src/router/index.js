@@ -4,6 +4,11 @@ import PregnancyCare from '../views/PregnancyCare.vue'
 import NewbornCare from '../views/NewbornCare.vue'
 import PreschoolEducation from '../views/PreschoolEducation.vue'
 import ExpertColumns from '../views/ExpertColumns.vue'
+import Login from '../views/auth/Login.vue'
+import Register from '../views/auth/Register.vue'
+import ForgotPassword from '../views/auth/ForgotPassword.vue'
+import InfantGrowth from "../views/InfantGrowth.vue"
+import CommunityForum from "../views/CommunityForum.vue"
 import Privacy from '../views/Privacy.vue'
 import Contact from '../views/Contact.vue'
 import About from '../views/About.vue'
@@ -53,6 +58,31 @@ const routes = [
     path: '/about',
     name: 'About',
     component: About
+  },
+  {
+    path: '/infant-growth',
+    name: 'InfantGrowth',
+    component: InfantGrowth
+  },
+  {
+    path: '/community',
+    name: 'CommunityForum',
+    component: CommunityForum
+  },
+  {
+    path: '/auth/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/auth/register',
+    name: 'Register',
+    component: Register
+  },
+  {
+    path: '/auth/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword
   }
 ]
 

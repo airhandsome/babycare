@@ -10,6 +10,8 @@ import (
 func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 	// 创建控制器实例
 	postController := controllers.NewPostController(db, rdb)
+	forumController := controllers.NewForumController(db, rdb)
+	uploadController := controllers.NewUploadController("./uploads")
 
 	// API 版本分组
 	v1 := r.Group("/api/v1")
@@ -31,5 +33,22 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 			posts.DELETE("/:id", postController.DeletePost)
 			posts.POST("/:id/views", postController.IncrementViews)
 		}
+
+		// 上传相关路由
+		v1.POST("/upload/images", uploadController.UploadImages)
+
+		// 论坛相关路由
+		forum := v1.Group("/forum")
+		{
+			forum.POST("/posts", forumController.CreatePost)
+			forum.GET("/posts", forumController.GetPosts)
+			forum.POST("/posts/:id/like", forumController.LikePost)
+			forum.POST("/posts/:id/comments", forumController.CreateComment)
+			forum.GET("/posts/:id/comments", forumController.GetComments)
+			forum.POST("/comments/:id/like", forumController.LikeComment)
+		}
 	}
+
+	// 静态文件服务
+	r.Static("/uploads", "./uploads")
 }

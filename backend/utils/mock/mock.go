@@ -1,6 +1,9 @@
 package mock
 
 import (
+	"log"
+	"time"
+
 	"github.com/babycare/models"
 	"gorm.io/gorm"
 )
@@ -10,9 +13,20 @@ func GenerateMockData(db *gorm.DB) error {
 	user := models.User{
 		Username: "专家顾问",
 		Email:    "expert@babycare.com",
+		Password: "123456",
 	}
-	if err := db.Create(&user).Error; err != nil {
-		return err
+
+	// 先查找用户是否存在
+	var existingUser models.User
+	if err := db.Where("email = ?", user.Email).First(&existingUser).Error; err != nil {
+		// 用户不存在，创建新用户
+		if err := db.Create(&user).Error; err != nil {
+			log.Printf("Failed to create user: %v", err)
+			return err
+		}
+	} else {
+		// 用户已存在，使用已存在的用户
+		user = existingUser
 	}
 
 	// 孕期文章数据
@@ -71,7 +85,7 @@ func GenerateMockData(db *gorm.DB) error {
 
 	// 批量创建文章
 	if err := db.Create(&pregnancyArticles).Error; err != nil {
-		return err
+		log.Print(err)
 	}
 
 	// 新生儿护理文章数据
@@ -130,7 +144,7 @@ func GenerateMockData(db *gorm.DB) error {
 
 	// 批量创建新生儿文章
 	if err := db.Create(&newbornArticles).Error; err != nil {
-		return err
+		log.Print(err)
 	}
 
 	// 早期发展文章数据
@@ -179,8 +193,61 @@ func GenerateMockData(db *gorm.DB) error {
 
 	// 批量创建早期发展文章
 	if err := db.Create(&developmentArticles).Error; err != nil {
+		log.Print(err)
+	}
+
+	// 创建论坛帖子
+	forumPosts := []models.ForumPost{
+		{
+			UserID:    user.ID,
+			Category:  "育儿经验",
+			Content:   "分享一下如何让宝宝爱上吃蔬菜的小技巧！我家宝宝以前特别挑食，通过这些方法现在已经能主动吃蔬菜了...",
+			Images:    "/images/forum/vegetables.png",
+			Likes:     15,
+			Comments:  8,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			UserID:    user.ID,
+			Category:  "专业指导",
+			Content:   "关于婴儿睡眠的一些专业建议：1. 建立规律的作息时间...",
+			Likes:     32,
+			Comments:  12,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	if err := db.Create(&forumPosts).Error; err != nil {
+		log.Printf("Failed to create forum posts: %v", err)
+		return err
+	}
+
+	// 创建一些评论
+	comments := []models.Comment{
+		{
+			UserID:    user.ID,
+			PostID:    forumPosts[0].ID,
+			Content:   "这个方法很有用，我家宝宝也是这样慢慢学会吃蔬菜的！",
+			Likes:     5,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			UserID:    user.ID,
+			PostID:    forumPosts[0].ID,
+			Content:   "可以分享一下具体是怎么做的吗？",
+			Likes:     3,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	if err := db.Create(&comments).Error; err != nil {
+		log.Printf("Failed to create comments: %v", err)
 		return err
 	}
 
 	return nil
-} 
+}
