@@ -12,6 +12,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 	postController := controllers.NewPostController(db, rdb)
 	forumController := controllers.NewForumController(db, rdb)
 	uploadController := controllers.NewUploadController("./uploads")
+	growthController := controllers.NewGrowthController(db)
 
 	// API 版本分组
 	v1 := r.Group("/api/v1")
@@ -46,6 +47,16 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 			forum.POST("/posts/:id/comments", forumController.CreateComment)
 			forum.GET("/posts/:id/comments", forumController.GetComments)
 			forum.POST("/comments/:id/like", forumController.LikeComment)
+		}
+
+		// 成长记录相关路由
+		growth := v1.Group("/growth")
+		{
+			growth.POST("/records", growthController.CreateRecord)
+			growth.GET("/records", growthController.GetRecords)
+			growth.POST("/milestones", growthController.CreateMilestone)
+			growth.PUT("/milestones/:id", growthController.UpdateMilestone)
+			growth.GET("/milestones", growthController.GetMilestones)
 		}
 	}
 

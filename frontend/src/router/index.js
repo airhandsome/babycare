@@ -12,6 +12,7 @@ import CommunityForum from "../views/CommunityForum.vue"
 import Privacy from '../views/Privacy.vue'
 import Contact from '../views/Contact.vue'
 import About from '../views/About.vue'
+import ArticleDetail from '../views/ArticleDetail.vue'
 
 const routes = [
   {
@@ -35,14 +36,15 @@ const routes = [
     component: PreschoolEducation
   },
   {
+    path: '/posts/:id',
+    name: 'ArticleDetail',
+    component: ArticleDetail,
+    props: true
+  },
+  {
     path: '/expert-columns',
     name: 'ExpertColumns',
     component: ExpertColumns
-  },
-  {
-    path: '/article/:id',
-    name: 'ArticleDetail',
-    component: () => import('../views/ArticleDetail.vue')
   },
   {
     path: '/privacy',

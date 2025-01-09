@@ -55,6 +55,9 @@ func main() {
 	if err := db.AutoMigrate(&models.Comment{}); err != nil {
 		logger.Log.Fatalf("Failed to migrate comment table: %v", err)
 	}
+	if err := db.AutoMigrate(&models.GrowthRecord{}, &models.Milestone{}); err != nil {
+		logger.Log.Fatalf("Failed to migrate growth tables: %v", err)
+	}
 
 	// 生成mock数据
 	if env == "default" {

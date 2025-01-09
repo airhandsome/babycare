@@ -4,108 +4,141 @@
     
     <!-- 学前教育 -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-6">学前教育指南</h2>
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">学前教育指南</h2>
+        <el-button type="primary" plain @click="loadEducationGuides">
+          <el-icon><Refresh /></el-icon>
+          刷新
+        </el-button>
+      </div>
       <div class="grid md:grid-cols-3 gap-6">
         <EducationCard v-for="item in educationGuides" 
                       :key="item.id"
                       :title="item.title"
-                      :description="item.description"
+                      :description="item.summary"
                       :image="item.image"
-                      :tags="item.tags" />
+                      :tags="item.tags?.split(',')"
+                      class="cursor-pointer hover:shadow-lg transition-shadow"
+                      @click="handleGuideClick(item)" />
       </div>
     </section>
 
     <!-- 社交技能培养 -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-6">社交技能培养</h2>
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">社交技能培养</h2>
+        <el-button type="primary" plain @click="loadSocialSkills">
+          <el-icon><Refresh /></el-icon>
+          刷新
+        </el-button>
+      </div>
       <div class="bg-white rounded-xl shadow-md p-6">
-        <SkillsList :skills="socialSkills" />
+        <SkillsList :skills="socialSkills.map(skill => ({
+          id: skill.id,
+          title: skill.title,
+          description: skill.summary,
+          icon: skill.icon
+        }))"
+        @skill-click="handleSkillClick" />
       </div>
     </section>
 
     <!-- 艺术与创造力 -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-6">艺术与创造力</h2>
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">艺术与创造力</h2>
+        <el-button type="primary" plain @click="loadArtActivities">
+          <el-icon><Refresh /></el-icon>
+          刷新
+        </el-button>
+      </div>
       <div class="grid md:grid-cols-2 gap-8">
         <ActivityCard v-for="activity in artActivities"
                      :key="activity.id"
                      :title="activity.title"
-                     :description="activity.description"
+                     :description="activity.summary"
                      :image="activity.image"
                      :duration="activity.duration"
-                     :materials="activity.materials" />
+                     :materials="activity.materials?.split(',')"
+                     class="cursor-pointer hover:shadow-lg transition-shadow"
+                     @click="handleActivityClick(activity)" />
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Refresh } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import request from '../utils/request'
 import EducationCard from '../components/cards/EducationCard.vue'
 import SkillsList from '../components/lists/SkillsList.vue'
 import ActivityCard from '../components/cards/ActivityCard.vue'
 
-const educationGuides = ref([
-  {
-    id: 1,
-    title: '选择合适的幼儿园',
-    description: '如何根据孩子特点选择合适的幼儿园环境',
-    image: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9',
-    tags: ['教育指南', '环境选择']
-  },
-  {
-    id: 2,
-    title: '早教课程推荐',
-    description: '适合3-6岁儿童的早教课程介绍',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b',
-    tags: ['早教', '课程']
-  },
-  {
-    id: 3,
-    title: '入园准备',
-    description: '帮助孩子顺利适应幼儿园生活',
-    image: 'https://images.unsplash.com/photo-1544507888-56d73eb6046e',
-    tags: ['入园适应', '生活技能']
-  }
-])
+const router = useRouter()
+const educationGuides = ref([])
+const socialSkills = ref([])
+const artActivities = ref([])
 
-const socialSkills = ref([
-  {
-    id: 1,
-    title: '分享与合作',
-    description: '培养孩子与他人分享和合作的能力',
-    icon: 'Share'
-  },
-  {
-    id: 2,
-    title: '情绪管理',
-    description: '帮助孩子认识和管理自己的情绪',
-    icon: 'Sunny'
-  },
-  {
-    id: 3,
-    title: '沟通表达',
-    description: '提升语言表达和倾听能力',
-    icon: 'ChatDotRound'
+// 加载教育指南
+const loadEducationGuides = async () => {
+  try {
+    const response = await request.get('posts', {
+      params: { category: 'education_guide' }
+    })
+    educationGuides.value = response
+  } catch (error) {
+    console.error('Failed to load education guides:', error)
+    ElMessage.error('加载教育指南失败')
   }
-])
+}
 
-const artActivities = ref([
-  {
-    id: 1,
-    title: '创意绘画工作坊',
-    description: '通过有趣的绘画活动激发孩子的想象力',
-    image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f',
-    duration: '30分钟',
-    materials: ['画纸', '蜡笔', '水彩']
-  },
-  {
-    id: 2,
-    title: '音乐律动课',
-    description: '结合音乐和肢体活动，培养艺术感知',
-    image: 'https://images.unsplash.com/photo-1445633629932-0029acc44e88',
-    duration: '45分钟',
-    materials: ['乐器', '音乐播放器']
+// 加载社交技能
+const loadSocialSkills = async () => {
+  try {
+    const response = await request.get('posts', {
+      params: { category: 'social_skills' }
+    })
+    socialSkills.value = response
+  } catch (error) {
+    console.error('Failed to load social skills:', error)
+    ElMessage.error('加载社交技能失败')
   }
-])
+}
+
+// 加载艺术活动
+const loadArtActivities = async () => {
+  try {
+    const response = await request.get('posts', {
+      params: { category: 'art_activities' }
+    })
+    artActivities.value = response
+  } catch (error) {
+    console.error('Failed to load art activities:', error)
+    ElMessage.error('加载艺术活动失败')
+  }
+}
+
+// 处理指南点击
+const handleGuideClick = (guide) => {
+  router.push(`/posts/${guide.id}`)
+}
+
+// 处理技能点击
+const handleSkillClick = (skill) => {
+  router.push(`/posts/${skill.id}`)
+}
+
+// 处理活动点击
+const handleActivityClick = (activity) => {
+  router.push(`/posts/${activity.id}`)
+}
+
+onMounted(() => {
+  loadEducationGuides()
+  loadSocialSkills()
+  loadArtActivities()
+})
 </script>
